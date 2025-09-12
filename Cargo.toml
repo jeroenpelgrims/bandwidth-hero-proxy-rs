@@ -1,0 +1,12 @@
+[package]
+name = "bandwidth-hero-proxy-rs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8.4"
+dotenv = "0.15.0"
+reqwest = "0.12.23"
+serde = { version = "1.0.219", features = ["derive"] }
+tokio = { version = "1.47.1", features = ["rt-multi-thread"] }
+url = "2.5.7"
