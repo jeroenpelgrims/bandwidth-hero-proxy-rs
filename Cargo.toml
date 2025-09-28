@@ -3,10 +3,19 @@ name = "bandwidth-hero-proxy-rs"
 version = "0.1.0"
 edition = "2024"
 
+[target.'cfg(not(target_env = "msvc"))'.dependencies]
+tikv-jemallocator = "0.5"
+
 [dependencies]
+anyhow = "1.0.99"
 axum = "0.8.4"
+bytes = "1.10.1"
 dotenv = "0.15.0"
-reqwest = "0.12.23"
+image = "0.25.8"
+reqwest = { version = "0.11", features = ["json", "gzip", "cookies"] }
 serde = { version = "1.0.219", features = ["derive"] }
 tokio = { version = "1.47.1", features = ["rt-multi-thread"] }
+tracing = "0.1.41"
 url = "2.5.7"
+webp = "0.3.1"
+mimalloc = { version = "0.1", default-features = false }
