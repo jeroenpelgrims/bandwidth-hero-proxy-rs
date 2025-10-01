@@ -1,3 +1,5 @@
+use std::fmt;
+
 use axum::{http::StatusCode, response::IntoResponse};
 
 pub struct AppError(anyhow::Error);
@@ -19,5 +21,11 @@ impl IntoResponse for AppError {
             format!("Something went wrong: {}", self.0),
         )
             .into_response()
+    }
+}
+
+impl fmt::Debug for AppError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.0)
     }
 }
