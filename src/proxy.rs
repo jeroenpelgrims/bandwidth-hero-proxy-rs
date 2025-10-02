@@ -1,6 +1,10 @@
 use std::{collections::HashSet, sync::Arc};
 
-use axum::{extract::State, http::HeaderMap, response::IntoResponse};
+use axum::{
+    extract::State,
+    http::HeaderMap,
+    response::{AppendHeaders, IntoResponse},
+};
 use reqwest::{Client, header::HeaderValue};
 use tracing::info;
 
@@ -37,15 +41,26 @@ pub async fn proxy_url(
 
     let response = client.get(url).headers(headers).send().await?;
 
-    let response_headers = response.headers().clone();
-    let content_type = response_headers
+    let origin_headers = response.headers().clone();
+    let content_type = origin_headers
         .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("")
-        .to_string();
+        .map(|v| v.clone())
+        .unwrap_or(HeaderValue::from_static(""));
 
     let buffer = response.bytes().await?;
+    let original_size = buffer.len();
     let converted = compress::compress_image(buffer, quality.into(), monochrome, webp)?;
+    let content_length = converted.len();
+    let bytes_saved = original_size - content_length;
 
-    Ok(converted.into_response())
+    let mut response_headers = HeaderMap::new();
+    response_headers.insert("content-encoding", HeaderValue::from_static("identity"));
+    response_headers.insert("content-type", HeaderValue::from(content_type));
+    response_headers.insert("content-length", HeaderValue::from(content_length));
+    response_headers.insert("x-original-size", HeaderValue::from(original_size));
+    response_headers.insert("x-bytes-saved", HeaderValue::from(bytes_saved));
+
+    Ok((response_headers, converted).into_response())
 }
+
+async fn proxy_remote() {}
