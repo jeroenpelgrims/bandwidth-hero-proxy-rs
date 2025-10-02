@@ -3,11 +3,11 @@ use error::AppError;
 use reqwest::{Client, redirect::Policy};
 use std::{sync::Arc, time::Duration};
 
+mod compress;
 mod error;
 mod headers;
 mod params;
 mod proxy;
-mod todo;
 
 #[tokio::main]
 async fn main() -> Result<(), AppError> {

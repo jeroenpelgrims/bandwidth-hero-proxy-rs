@@ -4,7 +4,7 @@ use axum::{extract::State, http::HeaderMap, response::IntoResponse};
 use reqwest::{Client, header::HeaderValue};
 use tracing::info;
 
-use crate::{error::AppError, headers, params::BandwidthHeroParams, todo};
+use crate::{compress, error::AppError, headers, params::BandwidthHeroParams};
 
 pub async fn proxy_url(
     BandwidthHeroParams {
@@ -23,6 +23,7 @@ pub async fn proxy_url(
     info!("Proxying URL: {}", url);
 
     let mut headers = headers::filter_headers(headers, vec!["cookie", "dnt", "referer"]);
+    headers.append("via", HeaderValue::from_static("1.1 bandwidth-hero"));
     headers.append(
         "user-agent",
         HeaderValue::from_static("Bandwidth-Hero Compressor"),
@@ -33,7 +34,6 @@ pub async fn proxy_url(
             reqwest::header::HeaderValue::from_bytes(forwarded_for.as_bytes())?,
         );
     }
-    headers.append("via", HeaderValue::from_static("1.1 bandwidth-hero"));
 
     let response = client.get(url).headers(headers).send().await?;
 
@@ -45,7 +45,7 @@ pub async fn proxy_url(
         .to_string();
 
     let buffer = response.bytes().await?;
-    let converted = todo::convert_bytes_to_webp_with_alpha(buffer, 1.0)?;
+    let converted = compress::compress_image(buffer, quality.into(), monochrome, webp)?;
 
     Ok(converted.into_response())
 }
