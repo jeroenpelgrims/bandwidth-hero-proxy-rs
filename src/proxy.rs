@@ -41,21 +41,16 @@ pub async fn proxy_url(
 
     let response = client.get(url).headers(headers).send().await?;
 
-    let origin_headers = response.headers().clone();
-    let content_type = origin_headers
-        .get("content-type")
-        .map(|v| v.clone())
-        .unwrap_or(HeaderValue::from_static(""));
-
     let buffer = response.bytes().await?;
     let original_size = buffer.len();
     let converted = compress::compress_image(buffer, quality.into(), monochrome, webp)?;
     let content_length = converted.len();
     let bytes_saved = original_size - content_length;
+    let content_type = if webp { "image/webp" } else { "image/jpeg" };
 
     let mut response_headers = HeaderMap::new();
     response_headers.insert("content-encoding", HeaderValue::from_static("identity"));
-    response_headers.insert("content-type", HeaderValue::from(content_type));
+    response_headers.insert("content-type", HeaderValue::from_static(content_type));
     response_headers.insert("content-length", HeaderValue::from(content_length));
     response_headers.insert("x-original-size", HeaderValue::from(original_size));
     response_headers.insert("x-bytes-saved", HeaderValue::from(bytes_saved));
