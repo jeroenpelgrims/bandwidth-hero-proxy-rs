@@ -15,7 +15,7 @@ async fn main() -> Result<(), AppError> {
 
     let app = app()?;
 
-    let port = 8081;
+    let port = std::env::var("PORT").unwrap_or("80".into());
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port)).await?;
     axum::serve(listener, app).await?;
 
