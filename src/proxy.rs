@@ -6,7 +6,7 @@ use axum::{
     response::{AppendHeaders, IntoResponse},
 };
 use reqwest::{Client, header::HeaderValue};
-use tracing::info;
+use tracing;
 
 use crate::{compress, error::AppError, headers, params::BandwidthHeroParams};
 
@@ -24,7 +24,7 @@ pub async fn proxy_url(
         return Ok("bandwidth-hero-proxy".into_response());
     };
 
-    info!("Proxying URL: {}", url);
+    tracing::info!("Proxying URL: {}", url);
 
     let mut headers = headers::filter_headers(headers, vec!["cookie", "dnt", "referer"]);
     headers.append("via", HeaderValue::from_static("1.1 bandwidth-hero"));

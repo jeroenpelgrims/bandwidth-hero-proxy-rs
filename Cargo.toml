@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-anyhow = "1.0.99"
+anyhow = "1.0.100"
 axum = "0.8.6"
 bytes = "1.10.1"
 dotenv = "0.15.0"
@@ -16,3 +16,6 @@ tracing = "0.1.41"
 url = "2.5.7"
 webp = "0.3.1"
 tracing-subscriber = "0.3.20"
+axum-auth = "0.8.1"
+tower-http = { version = "0.6.6", features = ["auth"] }
+base64 = "0.22.1"

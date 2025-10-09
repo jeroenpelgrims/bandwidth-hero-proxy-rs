@@ -1,8 +1,9 @@
-use axum::{Router, routing::get};
+use axum::{Router, middleware, routing::get};
 use error::AppError;
 use reqwest::{Client, redirect::Policy};
 use std::{sync::Arc, time::Duration};
 
+mod authentication;
 mod compress;
 mod error;
 mod headers;
@@ -17,6 +18,8 @@ async fn main() -> Result<(), AppError> {
 
     let port = std::env::var("PORT").unwrap_or("80".into());
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port)).await?;
+
+    tracing::info!("Listening on port {}", port);
     axum::serve(listener, app).await?;
 
     Ok(())
@@ -28,6 +31,8 @@ pub fn app() -> Result<Router, AppError> {
 
     let app = Router::new()
         .route("/", get(proxy::proxy_url))
+        // Disabling auth because the browser extension doesn't send the auth info properly anyway it seems...
+        // .layer(middleware::from_fn(authentication::authenticate))
         .with_state(Arc::new(state));
 
     Ok(app)
