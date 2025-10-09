@@ -3,7 +3,7 @@ use image::{DynamicImage, RgbaImage, imageops};
 use webp::Encoder;
 
 pub fn compress_image(
-    image_bytes: Bytes,
+    image_bytes: &Bytes,
     quality: f32,
     monochrome: bool,
     webp: bool,
