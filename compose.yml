@@ -1,0 +1,9 @@
+services:
+  bandwidth-hero-proxy-rs:
+    build: .
+    ports:
+      - "1337:1337"
+    environment:
+      - PORT=1337
+      - RUST_LOG=info
+    restart: unless-stopped
